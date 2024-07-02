@@ -1,0 +1,42 @@
+{
+  "name": "hyperzod/pidge-sdk-php",
+  "description": "A PHP SDK to integrate Pidge with your application.",
+  "keywords": [
+    "hyperzod",
+    "pidge-sdk-php"
+  ],
+  "homepage": "https://github.com/hyperzod/pidge-sdk-php",
+  "license": "MIT",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Azam Siddiqui",
+      "email": "siddiquiazam966@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^7.4|^8.0",
+    "guzzlehttp/guzzle": "^7.5"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Hyperzod\\PidgeSdkPhp\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Hyperzod\\PidgeSdkPhp\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
