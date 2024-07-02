@@ -63,27 +63,49 @@ class BasePidgeClient implements PidgeClientInterface
       return $this->config['api_base'];
    }
 
-   /**
-    * Sends a request to Pidge's API.
-    *
-    * @param string $method the HTTP method
-    * @param string $path the path of the request
-    * @param array $params the parameters of the request
-    */
+   // Get access token through login api
+   public function getAccessToken()
+   {
+      $headers['content-type'] = 'application/json';
+
+      $client = new Client([
+         'headers' => $headers,
+      ]);
+
+      $api = $this->getApiBase() . '/login';
+
+      $response = $client->request('POST', $api, [
+         'json' => [
+            'username' => $this->getUsername(),
+            'password' => $this->getPassword()
+         ]
+      ]);
+
+      $response = json_decode($response->getBody(), true);
+
+      return $response['data']['token'];
+   }
 
    public function request($method, $path, $params)
    {
+      $headers['content-type'] = 'application/json';
+      $headers['Authorization'] = $params['access_token'];
+      // unset token from params
+      unset($params['access_token']);
+
       $client = new Client([
-         'headers' => [
-            'content-type' => 'application/json',
-         ]
+         'headers' => $headers,
       ]);
 
       $api = $this->getApiBase() . $path;
 
-      $response = $client->request($method, $api, [
-         'json' => $params
-      ]);
+      if ($method == 'GET') {
+         $response = $client->request($method, $api);
+      } else {
+         $response = $client->request($method, $api, [
+            'json' => $params
+         ]);
+      }
 
       return $this->validateResponse($response);
    }
@@ -153,8 +175,13 @@ class BasePidgeClient implements PidgeClientInterface
          return $response;
       } else {
          $response = json_decode($response->getBody(), true);
-         if (isset($response["errors"])) {
-            throw new Exception($response["errors"][0]["message"]);
+
+         if (isset($response["error"]) && isset($response["error"]["code"]) && $response["error"]["code"] == 401) {
+            return $response;
+         }
+
+         if (isset($response["error"])) {
+            throw new Exception($response["error"]["message"]);
          }
          throw new Exception("Errors node not set in server response");
       }
